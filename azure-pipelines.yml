@@ -1,0 +1,33 @@
+stages:
+  - stage: validate
+    jobs:
+    - job: validate
+      continueOnError: false
+      steps:
+      - task: TerraformInstaller@0
+        displayName: 'install'
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTaskV3@3
+        displayName: 'init'
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Integration-Main-Code'
+          backendServiceArm: 'dev'
+          backendAzureRmResourceGroupName: 'DNS'
+          backendAzureRmStorageAccountName: 'ranjithpersonal'
+          backendAzureRmContainerName: 'devcontainer'
+          backendAzureRmKey: 'terraform.tfstate'
+      - task: TerraformTaskV3@3
+        displayName: validate
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+      - task: TerraformTaskV3@3
+        displayName: 'apply'
+        inputs:
+          provider: 'azurerm'
+          command: 'apply'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/Integration-Main-Code'
+          environmentServiceNameAzureRM: 'dev'
